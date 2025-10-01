@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serjio's IEP Goals Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+    
+    // Lucide React Icons (inline SVG)
+    const Download = () => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    );
+    
+    const Plus = () => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    );
+    
+    const Trash2 = () => (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+    );
+    
+    const Eye = () => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+    );
+    
+    const EyeOff = () => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+      </svg>
+    );
+
+    function IEPGoalTracker() {
+      const [goal1Data, setGoal1Data] = useState([]);
+      const [goal2Data, setGoal2Data] = useState([]);
+      const [showGoal1, setShowGoal1] = useState(true);
+      const [showGoal2, setShowGoal2] = useState(true);
+
+      const addGoal1Entry = () => {
+        const newEntry = {
+          id: Date.now(),
+          date: new Date().toISOString().split('T')[0],
+          setting: '',
+          groupSize: '',
+          taskDuration: '',
+          prompts: '',
+          success: '',
+          notes: ''
+        };
+        setGoal1Data([...goal1Data, newEntry]);
+      };
+
+      const addGoal2Entry = () => {
+        const newEntry = {
+          id: Date.now(),
+          date: new Date().toISOString().split('T')[0],
+          task: '',
+          strategy: '',
+          stayedOnTask: '',
+          completed: '',
+          success: '',
+          notes: ''
+        };
+        setGoal2Data([...goal2Data, newEntry]);
+      };
+
+      const updateGoal1Entry = (id, field, value) => {
+        setGoal1Data(goal1Data.map(entry => 
+          entry.id === id ? { ...entry, [field]: value } : entry
+        ));
+      };
+
+      const updateGoal2Entry = (id, field, value) => {
+        setGoal2Data(goal2Data.map(entry => 
+          entry.id === id ? { ...entry, [field]: value } : entry
+        ));
+      };
+
+      const deleteGoal1Entry = (id) => {
+        setGoal1Data(goal1Data.filter(entry => entry.id !== id));
+      };
+
+      const deleteGoal2Entry = (id) => {
+        setGoal2Data(goal2Data.filter(entry => entry.id !== id));
+      };
+
+      const calculateGoal1Progress = () => {
+        if (goal1Data.length === 0) return { percentage: 0, successes: 0, trials: 0 };
+        const recentTrials = goal1Data.slice(-5);
+        const successes = recentTrials.filter(entry => entry.success === 'Yes').length;
+        const percentage = (successes / recentTrials.length * 100).toFixed(0);
+        return { percentage, successes, trials: recentTrials.length };
+      };
+
+      const calculateGoal2Progress = () => {
+        if (goal2Data.length === 0) return { percentage: 0, successes: 0, trials: 0 };
+        const recentTrials = goal2Data.slice(-5);
+        const successes = recentTrials.filter(entry => entry.success === 'Yes').length;
+        const percentage = (successes / recentTrials.length * 100).toFixed(0);
+        return { percentage, successes, trials: recentTrials.length };
+      };
+
+      const exportToExcel = (data, filename) => {
+        if (data.length === 0) {
+          alert('No data to export');
+          return;
+        }
+        
+        const headers = Object.keys(data[0]).filter(key => key !== 'id');
+        
+        const csvContent = [
+          headers.join(','),
+          ...data.map(row => 
+            headers.map(header => {
+              const value = row[header] || '';
+              return `"${String(value).replace(/"/g, '""')}"`;
+            }).join(',')
+          )
+        ].join('\r\n');
+
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      };
+
+      const goal1Progress = calculateGoal1Progress();
+      const goal2Progress = calculateGoal2Progress();
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Serjio's IEP Goals Tracker</h1>
+              <p className="text-gray-600">Academic Year 2025-2026</p>
+            </div>
+
+            {/* Goal 1 Section */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-indigo-700">Goal #1: Task Attention</h2>
+                  <button
+                    onClick={() => setShowGoal1(!showGoal1)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    {showGoal1 ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={addGoal1Entry}
+                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    <Plus />
+                    Add Trial
+                  </button>
+                  <button
+                    onClick={() => exportToExcel(goal1Data, 'Serjio_Goal1_TaskAttention.csv')}
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Download />
+                    Export to Excel
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-indigo-50 p-4 rounded-lg mb-4">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>Target:</strong> Attend to task for 10+ minutes with ≤2 prompts in 4/5 trials (80% accuracy)
+                </p>
+                <div className="flex gap-6 text-center">
+                  <div className="flex-1">
+                    <div className="text-3xl font-bold text-indigo-700">{goal1Progress.successes}/{goal1Progress.trials}</div>
+                    <div className="text-sm text-gray-600">Last 5 Trials</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-3xl font-bold text-indigo-700">{goal1Progress.percentage}%</div>
+                    <div className="text-sm text-gray-600">Success Rate</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className={`text-3xl font-bold ${goal1Progress.percentage >= 80 ? 'text-green-600' : 'text-orange-600'}`}>
+                      {goal1Progress.percentage >= 80 ? '✓ Met' : 'In Progress'}
+                    </div>
+                    <div className="text-sm text-gray-600">Goal Status</div>
+                  </div>
+                </div>
+              </div>
+
+              {showGoal1 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-indigo-100">
+                        <th className="border border-gray-300 p-2 text-left">Date</th>
+                        <th className="border border-gray-300 p-2 text-left">Setting</th>
+                        <th className="border border-gray-300 p-2 text-left">Group Size</th>
+                        <th className="border border-gray-300 p-2 text-left">Duration (min)</th>
+                        <th className="border border-gray-300 p-2 text-left"># Prompts</th>
+                        <th className="border border-gray-300 p-2 text-left">Success?</th>
+                        <th className="border border-gray-300 p-2 text-left">Notes</th>
+                        <th className="border border-gray-300 p-2 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {goal1Data.map((entry) => (
+                        <tr key={entry.id} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="date"
+                              value={entry.date}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'date', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.setting}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'setting', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="">Select</option>
+                              <option value="Advisory AM">Advisory AM</option>
+                              <option value="Ethnic Studies">Ethnic Studies</option>
+                              <option value="Visual Arts">Visual Arts</option>
+                              <option value="English 10">English 10</option>
+                              <option value="Science">Science</option>
+                              <option value="English 9">English 9</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.groupSize}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'groupSize', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="">Select</option>
+                              <option value="Small (2-5)">Small (2-5)</option>
+                              <option value="Large (6+)">Large (6+)</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="number"
+                              value={entry.taskDuration}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'taskDuration', e.target.value)}
+                              className="w-full p-1 border rounded"
+                              min="0"
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="number"
+                              value={entry.prompts}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'prompts', e.target.value)}
+                              className="w-full p-1 border rounded"
+                              min="0"
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.success}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'success', e.target.value)}
+                              className={`w-full p-1 border rounded ${
+                                entry.success === 'Yes' ? 'bg-green-100' : entry.success === 'No' ? 'bg-red-100' : ''
+                              }`}
+                            >
+                              <option value="">Select</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="text"
+                              value={entry.notes}
+                              onChange={(e) => updateGoal1Entry(entry.id, 'notes', e.target.value)}
+                              className="w-full p-1 border rounded"
+                              placeholder="Additional notes..."
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2 text-center">
+                            <button
+                              onClick={() => deleteGoal1Entry(entry.id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <Trash2 />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {goal1Data.length === 0 && (
+                        <tr>
+                          <td colSpan="8" className="border border-gray-300 p-4 text-center text-gray-500">
+                            No trials recorded yet. Click "Add Trial" to begin tracking.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Goal 2 Section */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-purple-700">Goal #2: Self-Regulation Strategies</h2>
+                  <button
+                    onClick={() => setShowGoal2(!showGoal2)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    {showGoal2 ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={addGoal2Entry}
+                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Plus />
+                    Add Trial
+                  </button>
+                  <button
+                    onClick={() => exportToExcel(goal2Data, 'Serjio_Goal2_SelfRegulation.csv')}
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Download />
+                    Export to Excel
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-purple-50 p-4 rounded-lg mb-4">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>Target:</strong> Use self-selected strategy to complete non-preferred tasks in 4/5 opportunities (80% accuracy)
+                </p>
+                <div className="flex gap-6 text-center">
+                  <div className="flex-1">
+                    <div className="text-3xl font-bold text-purple-700">{goal2Progress.successes}/{goal2Progress.trials}</div>
+                    <div className="text-sm text-gray-600">Last 5 Trials</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-3xl font-bold text-purple-700">{goal2Progress.percentage}%</div>
+                    <div className="text-sm text-gray-600">Success Rate</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className={`text-3xl font-bold ${goal2Progress.percentage >= 80 ? 'text-green-600' : 'text-orange-600'}`}>
+                      {goal2Progress.percentage >= 80 ? '✓ Met' : 'In Progress'}
+                    </div>
+                    <div className="text-sm text-gray-600">Goal Status</div>
+                  </div>
+                </div>
+              </div>
+
+              {showGoal2 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-purple-100">
+                        <th className="border border-gray-300 p-2 text-left">Date</th>
+                        <th className="border border-gray-300 p-2 text-left">Non-Preferred Task</th>
+                        <th className="border border-gray-300 p-2 text-left">Strategy Used</th>
+                        <th className="border border-gray-300 p-2 text-left">Stayed on Task?</th>
+                        <th className="border border-gray-300 p-2 text-left">Completed?</th>
+                        <th className="border border-gray-300 p-2 text-left">Success?</th>
+                        <th className="border border-gray-300 p-2 text-left">Notes</th>
+                        <th className="border border-gray-300 p-2 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {goal2Data.map((entry) => (
+                        <tr key={entry.id} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="date"
+                              value={entry.date}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'date', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="text"
+                              value={entry.task}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'task', e.target.value)}
+                              className="w-full p-1 border rounded"
+                              placeholder="e.g., Math worksheet"
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.strategy}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'strategy', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="">Select</option>
+                              <option value="Timer">Timer</option>
+                              <option value="Break Card">Break Card</option>
+                              <option value="Chunking Work">Chunking Work</option>
+                              <option value="Asked for Help">Asked for Help</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.stayedOnTask}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'stayedOnTask', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="">Select</option>
+                              <option value="Yes">Yes</option>
+                              <option value="Partially">Partially</option>
+                              <option value="No">No</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.completed}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'completed', e.target.value)}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="">Select</option>
+                              <option value="Yes">Yes</option>
+                              <option value="Partially">Partially</option>
+                              <option value="No">No</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <select
+                              value={entry.success}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'success', e.target.value)}
+                              className={`w-full p-1 border rounded ${
+                                entry.success === 'Yes' ? 'bg-green-100' : entry.success === 'No' ? 'bg-red-100' : ''
+                              }`}
+                            >
+                              <option value="">Select</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            <input
+                              type="text"
+                              value={entry.notes}
+                              onChange={(e) => updateGoal2Entry(entry.id, 'notes', e.target.value)}
+                              className="w-full p-1 border rounded"
+                              placeholder="Additional notes..."
+                            />
+                          </td>
+                          <td className="border border-gray-300 p-2 text-center">
+                            <button
+                              onClick={() => deleteGoal2Entry(entry.id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <Trash2 />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {goal2Data.length === 0 && (
+                        <tr>
+                          <td colSpan="8" className="border border-gray-300 p-4 text-center text-gray-500">
+                            No trials recorded yet. Click "Add Trial" to begin tracking.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<IEPGoalTracker />, document.getElementById('root'));
+  </script>
+</body>
+</html>
