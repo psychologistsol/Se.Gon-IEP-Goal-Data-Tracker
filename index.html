@@ -54,11 +54,27 @@
       </svg>
     );
 
+    const HelpCircle = () => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    );
+    
+    const X = () => (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    );
+
     function IEPGoalTracker() {
       const [goal1Data, setGoal1Data] = useState([]);
       const [goal2Data, setGoal2Data] = useState([]);
       const [showGoal1, setShowGoal1] = useState(true);
       const [showGoal2, setShowGoal2] = useState(true);
+      const [showHelp, setShowHelp] = useState(false);
 
       const addGoal1Entry = () => {
         const newEntry = {
@@ -159,9 +175,173 @@
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Serjio's IEP Goals Tracker</h1>
-              <p className="text-gray-600">Academic Year 2025-2026</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">Serjio's IEP Goals Tracker</h1>
+                  <p className="text-gray-600">Academic Year 2025-2026</p>
+                </div>
+                <button
+                  onClick={() => setShowHelp(true)}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <HelpCircle />
+                  Help & Documentation
+                </button>
+              </div>
             </div>
+
+            {/* Help Modal */}
+            {showHelp && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowHelp(false)}>
+                <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                  <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-800">Help & Documentation</h2>
+                    <button
+                      onClick={() => setShowHelp(false)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <X />
+                    </button>
+                  </div>
+                  
+                  <div className="p-6 space-y-6">
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">About This Tracker</h3>
+                      <p className="text-gray-700">
+                        This web-based application helps educators and support staff track Individual Education Program (IEP) goals and monitor student progress across multiple goals with detailed data collection and progress visualization.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">Goals Being Tracked</h3>
+                      <div className="space-y-3">
+                        <div className="bg-indigo-50 p-4 rounded-lg">
+                          <h4 className="font-bold text-indigo-900 mb-2">Goal #1: Task Attention</h4>
+                          <p className="text-sm text-gray-700">Track student attention to tasks for 10+ minutes with ≤2 prompts. Target: 80% accuracy (4/5 trials)</p>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-bold text-purple-900 mb-2">Goal #2: Self-Regulation Strategies</h4>
+                          <p className="text-sm text-gray-700">Monitor use of self-selected strategies for completing non-preferred tasks. Target: 80% accuracy (4/5 opportunities)</p>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">How to Use This Tracker</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold text-gray-800 mb-2">Adding a Trial</h4>
+                          <ol className="list-decimal list-inside space-y-1 text-gray-700 ml-2">
+                            <li>Click the "Add Trial" button for the goal you want to track</li>
+                            <li>Fill in the date, setting/task details, and performance metrics</li>
+                            <li>Mark whether the trial was successful (Yes/No)</li>
+                            <li>Add any additional notes</li>
+                            <li>Progress metrics update automatically</li>
+                          </ol>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-gray-800 mb-2">Exporting Data</h4>
+                          <ol className="list-decimal list-inside space-y-1 text-gray-700 ml-2">
+                            <li>Click the green "Export to Excel" button for any goal</li>
+                            <li>A CSV file will download automatically</li>
+                            <li>Open in Excel, Google Sheets, or any spreadsheet application</li>
+                            <li>Export regularly to save your data</li>
+                          </ol>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-gray-800 mb-2">Understanding Progress</h4>
+                          <ul className="list-disc list-inside space-y-1 text-gray-700 ml-2">
+                            <li><strong>Last 5 Trials:</strong> Shows recent performance (e.g., 4/5 successes)</li>
+                            <li><strong>Success Rate:</strong> Percentage of successful trials in last 5 attempts</li>
+                            <li><strong>Goal Status:</strong> "✓ Met" when ≥80%, "In Progress" when below 80%</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-gray-800 mb-2">Managing Entries</h4>
+                          <ul className="list-disc list-inside space-y-1 text-gray-700 ml-2">
+                            <li>Click the eye icon to show/hide goal sections</li>
+                            <li>Click the trash icon to delete any trial entry</li>
+                            <li>Edit any field by clicking and typing</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-red-600 mb-3">⚠️ Important: Data Storage</h3>
+                      <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <p className="text-red-800 font-semibold mb-2">Data is stored in browser memory only!</p>
+                        <p className="text-red-700 text-sm">
+                          Your data will be lost when you refresh the page, close the browser tab, or navigate away. 
+                          <strong> Export your data to Excel/CSV regularly to save it permanently.</strong>
+                        </p>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">Features</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">Add and track multiple trials</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">Real-time progress calculation</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">Export to Excel/CSV</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">Visual progress indicators</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">Mobile responsive design</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="text-gray-700">No server required</span>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">Browser Compatibility</h3>
+                      <p className="text-gray-700 mb-2">This tracker works on:</p>
+                      <ul className="list-disc list-inside space-y-1 text-gray-700 ml-2">
+                        <li>Chrome (recommended)</li>
+                        <li>Firefox</li>
+                        <li>Safari</li>
+                        <li>Edge</li>
+                        <li>Mobile browsers (iOS Safari, Chrome Mobile)</li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-xl font-bold text-indigo-700 mb-3">Need More Help?</h3>
+                      <p className="text-gray-700">
+                        For more information, visit the GitHub repository or contact your technical support team.
+                      </p>
+                    </section>
+                  </div>
+
+                  <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6">
+                    <button
+                      onClick={() => setShowHelp(false)}
+                      className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                    >
+                      Close Help
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Goal 1 Section */}
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
